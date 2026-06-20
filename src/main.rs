@@ -4,7 +4,8 @@ use std::io::{self, Write};
 fn main() {
     // TODO: Uncomment the code below to pass the first stage
 
-    let command_directory = ["exit", "echo"];
+    let command_directory = ["exit", "echo", "type"];
+    let executables = [];
     //let directory_size: usize = command_directory.len();
 
     
@@ -27,10 +28,34 @@ fn main() {
         else if found_command == 2{
             echo(&args);         
         }
+        else if found_command == 3{
+            type_command(&command_directory, &executables, &args);
+        }
         else{
             println!("{command}: command not found")
         }
     }
+}
+
+fn type_command(com_array: &[&str], executables_array: &[&str], args: &Vec<&str>){
+    // No builtins yet, add
+
+    if args.len() > 2{
+        println!("more than one arg");
+    }
+
+    let type_text = args[1];
+
+    for item in com_array{
+        if item.to_lowercase() == type_text.to_lowercase(){
+            println!("{type_text} is a shell builtin");
+            return;
+        }
+    }
+    
+    println!("{type_text}: not found");
+    return
+
 }
 
 // Handles echo logic.
