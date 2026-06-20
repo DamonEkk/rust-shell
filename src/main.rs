@@ -4,7 +4,7 @@ use std::io::{self, Write};
 fn main() {
     // TODO: Uncomment the code below to pass the first stage
 
-    let command_directory = ["exit"];
+    let command_directory = ["exit", "echo"];
     //let directory_size: usize = command_directory.len();
 
     
@@ -16,15 +16,34 @@ fn main() {
         let command;
         command = get_user_input();
         let command = command.trim();
-        let found_command: u8 = check_directory(&command, &command_directory); 
+        let args: Vec<&str> = command.split_whitespace().collect();
+        let found_command: u8 = check_directory(&args[0], &command_directory); 
         if found_command == 1{
             break;
         }
+        else if found_command == 2{
+            echo(&args);         
+        }
+
 
         //println!("{}: command not found", command.trim());
         //testing
         println!("{command}: command not found")
     }
+}
+
+fn echo(args: &Vec<&str>){
+    let mut count = 0;
+    for item in args{
+        if count != 0{
+            if count > 1{
+                print!(" ");
+            }
+            print!("{item}");
+        }
+        count += 1; 
+    }
+    println!(""); 
 }
 
 // Returns positional integer when command is found, if item is not found 0 will be returned.
