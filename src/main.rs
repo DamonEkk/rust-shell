@@ -12,26 +12,28 @@ fn main() {
         // Display $
         print!("$ ");
         io::stdout().flush().unwrap();
+
         // Get user command
         let command;
         command = get_user_input();
         let command = command.trim();
         let args: Vec<&str> = command.split_whitespace().collect();
         let found_command: u8 = check_directory(&args[0], &command_directory); 
+
+        // Execute commands
         if found_command == 1{
             break;
         }
         else if found_command == 2{
             echo(&args);         
         }
-
-
-        //println!("{}: command not found", command.trim());
-        //testing
-        println!("{command}: command not found")
+        else{
+            println!("{command}: command not found")
+        }
     }
 }
 
+// Handles echo logic.
 fn echo(args: &Vec<&str>){
     let mut count = 0;
     for item in args{
