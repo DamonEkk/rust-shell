@@ -1,13 +1,21 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
+use std::env;
+use std::ffi::OsString;
+use std::path::Path;
+use std::path::PathBuf;
+use is_executable::IsExecutable;
+use std::fs;
 
 fn main() {
     // TODO: Uncomment the code below to pass the first stage
 
-    let command_directory = ["exit", "echo", "type"];
+    let command_directory = ["exit",
+        "echo",
+        "type"];
     let executables = [];
     //let directory_size: usize = command_directory.len();
-
+    
     
     loop{
         // Display $
@@ -21,31 +29,52 @@ fn main() {
         let args: Vec<&str> = command.split_whitespace().collect();
         let found_command: u8 = check_directory(&args[0], &command_directory); 
 
-        // Execute commands
-        if found_command == 1{
-            break;
+        match found_command {
+            1 => break,
+            2 => echo(&args),
+            3 => type_command(&command_directory, &executables, &args[1]),
+            _ => println!("{command}: command not found")
         }
-        else if found_command == 2{
-            echo(&args);         
-        }
-        else if found_command == 3{
-            type_command(&command_directory, &executables, &args);
-        }
-        else{
-            println!("{command}: command not found")
-        }
+
     }
 }
 
-fn type_command(com_array: &[&str], executables_array: &[&str], args: &Vec<&str>){
-    // No builtins yet, add
+fn check_executable(type_text: &str, path: OsString) -> bool {
+    let invalid_path = String::from("invalid");
+    let path_string = match path.into_string(){
+        Ok(valid) => valid,
+        Err(invalid_path) => String::new(),
+    };
+    
+    for item in env::split_paths(&path_string){
 
-    if args.len() > 2{
-        println!("more than one arg");
+        let sub_path = Path::new(&item);
+        let p_str = sub_path.join(type_text);
+        //let p_str = format!("{}/{}", item, type_text);
+
+        println!("{:?}", p_str);
+        if command_in_path(&p_str){  
+            let command = Path::new(&p_str);
+            if command.is_executable(){
+                println!("Command found");
+                return true;
+            }
+        }
     }
+    false
+}
 
-    let type_text = args[1];
+fn command_in_path(p_str: &PathBuf) -> bool{
+    if fs::metadata(p_str).is_ok(){
+        return true;
+    }
+    false
+}
 
+// checks the type of command 
+fn type_command(com_array: &[&str], executables_array: &[&str], type_text: &str){
+    let error = String::from("invalid");
+    // Builtin commands
     for item in com_array{
         if item.to_lowercase() == type_text.to_lowercase(){
             println!("{type_text} is a shell builtin");
@@ -53,9 +82,15 @@ fn type_command(com_array: &[&str], executables_array: &[&str], args: &Vec<&str>
         }
     }
     
+    // Search executables
+    let found = match std::env::var_os("PATH"){
+        Some(executables) => check_executable(&type_text, executables),
+        None => false,
+    };
+    if found {return}
+    
     println!("{type_text}: not found");
     return
-
 }
 
 // Handles echo logic.
