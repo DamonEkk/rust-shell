@@ -50,9 +50,7 @@ fn check_executable(type_text: &str, path: OsString) -> bool {
 
         let sub_path = Path::new(&item);
         let p_str = sub_path.join(type_text);
-        //let p_str = format!("{}/{}", item, type_text);
 
-        println!("{:?}", p_str);
         if command_in_path(&p_str){  
             let command = Path::new(&p_str);
             if command.is_executable(){
