@@ -54,7 +54,7 @@ fn check_executable(type_text: &str, path: OsString) -> bool {
         if command_in_path(&p_str){  
             let command = Path::new(&p_str);
             if command.is_executable(){
-                println!("{} is {}", item.to_string_lossy(), command.to_string_lossy());
+                println!("{} is {}", type_text, command.to_string_lossy());
                 return true;
             }
         }
