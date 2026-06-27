@@ -64,12 +64,9 @@ fn execute_command(command :&str, args :&Vec<String>){
 
 
 fn check_executable(type_text: &str, path: OsString) -> bool {
-
-
-    let invalid_path = String::from("invalid");
     let path_string = match path.into_string(){
         Ok(valid) => valid,
-        Err(invalid_path) => String::new(),
+        Err(_invalid_path) => String::new(),
     };
     
     for item in env::split_paths(&path_string){
@@ -89,10 +86,9 @@ fn check_executable(type_text: &str, path: OsString) -> bool {
 }
 
 fn get_executable(command_string: &str ,path: OsString) -> String{
-    let invalid_path = String::from("invalid");
     let path_string = match path.into_string(){
         Ok(valid) => valid,
-        Err(invalid_path) => String::new(),
+        Err(_invalid_path) => String::new(),
     };
     
     for item in env::split_paths(&path_string){
