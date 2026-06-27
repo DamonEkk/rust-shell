@@ -6,16 +6,14 @@ use std::path::Path;
 use std::path::PathBuf;
 use is_executable::IsExecutable;
 use std::fs;
+use std::process::Command;
 
 fn main() {
-    // TODO: Uncomment the code below to pass the first stage
+    let args: Vec<String> = env::args().collect();
 
     let command_directory = ["exit",
         "echo",
         "type"];
-    let executables = [];
-    //let directory_size: usize = command_directory.len();
-    
     
     loop{
         // Display $
@@ -23,21 +21,45 @@ fn main() {
         io::stdout().flush().unwrap();
 
         // Get user command
-        let command;
-        command = get_user_input();
+        let command = get_user_input();
         let command = command.trim();
-        let args: Vec<&str> = command.split_whitespace().collect();
-        let found_command: u8 = check_directory(&args[0], &command_directory); 
+        let commands_split: Vec<&str> = command.split_whitespace().collect();
+        let found_command: u8 = check_directory(&commands_split[0], &command_directory); 
 
         match found_command {
             1 => break,
-            2 => echo(&args),
-            3 => type_command(&command_directory, &executables, &args[1]),
-            _ => println!("{command}: command not found")
+            2 => echo(&commands_split),
+            3 => type_command(&command_directory, &commands_split[1]),
+            _ => execute_command(&command, &args),
         }
 
     }
 }
+
+fn execute_command(command :&str, args :&Vec<String>){
+    
+    let found = match std::env::var_os("PATH"){
+        Some(executables) => check_executable(&command, executables),
+        None => false,
+    };
+    if found {
+        let executable = match std::env::var_os("PATH"){
+            Some(executable) => get_executable(&command, executable),
+            None => String::new(),
+        };
+        
+        
+        let mut child = Command::new(executable)
+            .args(args)
+            .spawn()
+            .expect("failed to execute");
+
+        child.wait().expect("failed to wait");
+
+    }
+    println!("{command}: command not found")
+}
+
 
 fn check_executable(type_text: &str, path: OsString) -> bool {
     let invalid_path = String::from("invalid");
@@ -62,6 +84,29 @@ fn check_executable(type_text: &str, path: OsString) -> bool {
     false
 }
 
+fn get_executable(command_string: &str ,path: OsString) -> String{
+    let invalid_path = String::from("invalid");
+    let path_string = match path.into_string(){
+        Ok(valid) => valid,
+        Err(invalid_path) => String::new(),
+    };
+    
+    for item in env::split_paths(&path_string){
+
+        let sub_path = Path::new(&item);
+        let p_str = sub_path.join(command_string);
+
+        if command_in_path(&p_str){  
+            let command = Path::new(&p_str);
+            if command.is_executable(){
+                let command_executable = command.to_string_lossy().to_string();
+                return command_executable;
+            }
+        }
+    }
+    return invalid_path
+}
+
 fn command_in_path(p_str: &PathBuf) -> bool{
     if fs::metadata(p_str).is_ok(){
         return true;
@@ -70,7 +115,12 @@ fn command_in_path(p_str: &PathBuf) -> bool{
 }
 
 // checks the type of command 
-fn type_command(com_array: &[&str], executables_array: &[&str], type_text: &str){
+fn type_command(com_array: &[&str], type_text: &str){
+    if com_array.len() < 2{
+        println!("{type_text}: not found");
+        return
+    }
+
     let error = String::from("invalid");
     // Builtin commands
     for item in com_array{
