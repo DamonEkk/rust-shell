@@ -86,6 +86,7 @@ fn check_executable(type_text: &str, path: OsString) -> bool {
 }
 
 fn get_executable(command_string: &str ,path: OsString) -> String{
+    let invalid_path = String::from("invalid");
     let path_string = match path.into_string(){
         Ok(valid) => valid,
         Err(_invalid_path) => String::new(),
