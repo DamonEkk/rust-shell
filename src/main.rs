@@ -122,7 +122,7 @@ fn type_command(com_array: &[&str], type_text: &str){
         return
     }
 
-    let error = String::from("invalid");
+    let _error = String::from("invalid");
     // Builtin commands
     for item in com_array{
         if item.to_lowercase() == type_text.to_lowercase(){
