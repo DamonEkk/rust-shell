@@ -37,14 +37,16 @@ fn main() {
 }
 
 fn execute_command(command :&str, args :&Vec<String>){
+    let no_arg_command_list: Vec<&str> = command.split_whitespace().collect();
+    let no_arg_command = no_arg_command_list[0];
     
     let found = match std::env::var_os("PATH"){
-        Some(executables) => check_executable(&command, executables),
+        Some(executables) => check_executable(&no_arg_command, executables),
         None => false,
     };
     if found {
         let executable = match std::env::var_os("PATH"){
-            Some(executable) => get_executable(&command, executable),
+            Some(executable) => get_executable(&no_arg_command, executable),
             None => String::new(),
         };
         
@@ -62,6 +64,8 @@ fn execute_command(command :&str, args :&Vec<String>){
 
 
 fn check_executable(type_text: &str, path: OsString) -> bool {
+
+
     let invalid_path = String::from("invalid");
     let path_string = match path.into_string(){
         Ok(valid) => valid,
