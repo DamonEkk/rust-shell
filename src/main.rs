@@ -7,6 +7,7 @@ use std::path::PathBuf;
 use is_executable::IsExecutable;
 use std::fs;
 use std::process::Command;
+use std::os::unix::process::CommandExt;
 
 fn main() {
     //let args: Vec<String> = env::args().collect();
@@ -57,7 +58,8 @@ fn execute_command(command :&str, args :&Vec<&str>){
         
         
         let mut child = Command::new(&executable)
-            .args(args)
+            .arg0(program_name)
+            .args(&args[1..])
             .spawn()
             .expect("failed to execute");
 
