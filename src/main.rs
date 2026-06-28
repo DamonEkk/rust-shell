@@ -57,6 +57,7 @@ fn execute_command(command :&str, args :&Vec<&str>){
             .expect("failed to execute");
 
         child.wait().expect("failed to wait");
+        return
 
     }
     println!("{command}: command not found")
