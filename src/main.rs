@@ -41,9 +41,10 @@ fn execute_command(command :&str, args :&Vec<&str>){
     let no_arg_command_list: Vec<&str> = command.split_whitespace().collect();
     let no_arg_command = no_arg_command_list[0];
     let program_name = args[0];
+    let no_print = true;
 
     let found = match std::env::var_os("PATH"){
-        Some(executables) => check_executable(&no_arg_command, executables),
+        Some(executables) => check_executable(&no_arg_command, executables, no_print),
         None => false,
     };
     if found {
@@ -58,8 +59,9 @@ fn execute_command(command :&str, args :&Vec<&str>){
         
         
         let mut child = Command::new(&executable)
-            .arg0(program_name)
-            .args(&args[1..])
+            //.arg0(program_name)
+            //.args(&args[1..])
+            .args(args)
             .spawn()
             .expect("failed to execute");
 
@@ -71,7 +73,7 @@ fn execute_command(command :&str, args :&Vec<&str>){
 }
 
 
-fn check_executable(type_text: &str, path: OsString) -> bool {
+fn check_executable(type_text: &str, path: OsString, no_print: bool) -> bool {
     let path_string = match path.into_string(){
         Ok(valid) => valid,
         Err(_invalid_path) => String::new(),
@@ -85,7 +87,9 @@ fn check_executable(type_text: &str, path: OsString) -> bool {
         if command_in_path(&p_str){  
             let command = Path::new(&p_str);
             if command.is_executable(){
-                println!("{} is {}", type_text, command.to_string_lossy());
+                if !no_print{
+                    println!("{} is {}", type_text, command.to_string_lossy());
+                }
                 return true;
             }
         }
@@ -125,6 +129,8 @@ fn command_in_path(p_str: &PathBuf) -> bool{
 
 // checks the type of command 
 fn type_command(com_array: &[&str], type_text: &str){
+    let no_print = false;
+
     if com_array.len() < 2{
         println!("{type_text}: not found");
         return
@@ -141,7 +147,7 @@ fn type_command(com_array: &[&str], type_text: &str){
     
     // Search executables
     let found = match std::env::var_os("PATH"){
-        Some(executables) => check_executable(&type_text, executables),
+        Some(executables) => check_executable(&type_text, executables, no_print),
         None => false,
     };
     if found {return}
