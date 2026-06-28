@@ -59,9 +59,9 @@ fn execute_command(command :&str, args :&Vec<&str>){
         
         
         let mut child = Command::new(&executable)
-            //.arg0(program_name)
-            //.args(&args[1..])
-            .args(args)
+            .arg0(program_name)
+            .args(&args[1..])
+            //.args(args)
             .spawn()
             .expect("failed to execute");
 
