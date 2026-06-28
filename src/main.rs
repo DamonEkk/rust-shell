@@ -53,11 +53,6 @@ fn execute_command(command :&str, args :&Vec<&str>){
             None => String::new(),
         };
 
-        for items in args{
-            println!("{items}");
-        }
-        
-        
         let mut child = Command::new(&executable)
             .arg0(program_name)
             .args(&args[1..])
