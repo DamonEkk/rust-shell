@@ -9,7 +9,7 @@ use std::fs;
 use std::process::Command;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    //let args: Vec<String> = env::args().collect();
 
     let command_directory = ["exit",
         "echo",
@@ -30,13 +30,13 @@ fn main() {
             1 => break,
             2 => echo(&commands_split),
             3 => type_command(&command_directory, &commands_split[1]),
-            _ => execute_command(&command, &args),
+            _ => execute_command(&command, &commands_split),
         }
 
     }
 }
 
-fn execute_command(command :&str, args :&Vec<String>){
+fn execute_command(command :&str, args :&Vec<&str>){
     let no_arg_command_list: Vec<&str> = command.split_whitespace().collect();
     let no_arg_command = no_arg_command_list[0];
     
