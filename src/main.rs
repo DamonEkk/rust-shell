@@ -39,7 +39,8 @@ fn main() {
 fn execute_command(command :&str, args :&Vec<&str>){
     let no_arg_command_list: Vec<&str> = command.split_whitespace().collect();
     let no_arg_command = no_arg_command_list[0];
-    
+    let program_name = args[0];
+
     let found = match std::env::var_os("PATH"){
         Some(executables) => check_executable(&no_arg_command, executables),
         None => false,
@@ -49,10 +50,14 @@ fn execute_command(command :&str, args :&Vec<&str>){
             Some(executable) => get_executable(&no_arg_command, executable),
             None => String::new(),
         };
+
+        for items in args{
+            println!("{items}");
+        }
         
         
-        let mut child = Command::new(executable)
-            .args(&args[..1])
+        let mut child = Command::new(&executable)
+            .args(&args[1..])
             .spawn()
             .expect("failed to execute");
 
