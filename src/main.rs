@@ -14,7 +14,8 @@ fn main() {
 
     let command_directory = ["exit",
         "echo",
-        "type"];
+        "type",
+        "pwd"];
     
     loop{
         // Display $
