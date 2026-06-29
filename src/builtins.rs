@@ -7,8 +7,6 @@ use std::path::PathBuf;
 use is_executable::IsExecutable;
 use std::fs;
  
-
-
 pub fn type_command(com_array: &[&str], type_text: &str){
     let no_print = false;
 
@@ -51,6 +49,12 @@ pub fn echo(args: &Vec<&str>){
     }
     println!(""); 
 }
+
+pub fn pwd() -> std::io::Result<()> {
+    let path = env::current_dir()?;
+    println!("{}", path.display());
+    Ok(())
+} 
 
 
 pub fn check_executable(type_text: &str, path: OsString, no_print: bool) -> bool {

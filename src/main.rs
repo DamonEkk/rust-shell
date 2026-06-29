@@ -32,6 +32,7 @@ fn main() {
             1 => break,
             2 => builtins::echo(&commands_split),
             3 => builtins::type_command(&command_directory, &commands_split[1]),
+            4 => builtins::pwd().expect("REASON"),
             _ => execute_command(&command, &commands_split),
         }
 
