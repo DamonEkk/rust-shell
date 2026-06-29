@@ -3,11 +3,11 @@ use std::io::{self, Write};
 use std::env;
 use std::ffi::OsString;
 use std::path::Path;
-use std::path::PathBuf;
 use is_executable::IsExecutable;
-use std::fs;
 use std::process::Command;
 use std::os::unix::process::CommandExt;
+
+mod builtins;
 
 fn main() {
     //let args: Vec<String> = env::args().collect();
@@ -29,8 +29,8 @@ fn main() {
 
         match found_command {
             1 => break,
-            2 => echo(&commands_split),
-            3 => type_command(&command_directory, &commands_split[1]),
+            2 => builtins::echo(&commands_split),
+            3 => builtins::type_command(&command_directory, &commands_split[1]),
             _ => execute_command(&command, &commands_split),
         }
 
@@ -44,7 +44,7 @@ fn execute_command(command :&str, args :&Vec<&str>){
     let no_print = true;
 
     let found = match std::env::var_os("PATH"){
-        Some(executables) => check_executable(&no_arg_command, executables, no_print),
+        Some(executables) => builtins::check_executable(&no_arg_command, executables, no_print),
         None => false,
     };
     if found {
@@ -68,29 +68,7 @@ fn execute_command(command :&str, args :&Vec<&str>){
 }
 
 
-fn check_executable(type_text: &str, path: OsString, no_print: bool) -> bool {
-    let path_string = match path.into_string(){
-        Ok(valid) => valid,
-        Err(_invalid_path) => String::new(),
-    };
-    
-    for item in env::split_paths(&path_string){
 
-        let sub_path = Path::new(&item);
-        let p_str = sub_path.join(type_text);
-
-        if command_in_path(&p_str){  
-            let command = Path::new(&p_str);
-            if command.is_executable(){
-                if !no_print{
-                    println!("{} is {}", type_text, command.to_string_lossy());
-                }
-                return true;
-            }
-        }
-    }
-    false
-}
 
 fn get_executable(command_string: &str ,path: OsString) -> String{
     let invalid_path = String::from("invalid");
@@ -104,7 +82,7 @@ fn get_executable(command_string: &str ,path: OsString) -> String{
         let sub_path = Path::new(&item);
         let p_str = sub_path.join(command_string);
 
-        if command_in_path(&p_str){  
+        if builtins::command_in_path(&p_str){  
             let command = Path::new(&p_str);
             if command.is_executable(){
                 let command_executable = command.to_string_lossy().to_string();
@@ -113,57 +91,6 @@ fn get_executable(command_string: &str ,path: OsString) -> String{
         }
     }
     return invalid_path
-}
-
-fn command_in_path(p_str: &PathBuf) -> bool{
-    if fs::metadata(p_str).is_ok(){
-        return true;
-    }
-    false
-}
-
-// checks the type of command 
-fn type_command(com_array: &[&str], type_text: &str){
-    let no_print = false;
-
-    if com_array.len() < 2{
-        println!("{type_text}: not found");
-        return
-    }
-
-    let _error = String::from("invalid");
-    // Builtin commands
-    for item in com_array{
-        if item.to_lowercase() == type_text.to_lowercase(){
-            println!("{type_text} is a shell builtin");
-            return;
-        }
-    }
-    
-    // Search executables
-    let found = match std::env::var_os("PATH"){
-        Some(executables) => check_executable(&type_text, executables, no_print),
-        None => false,
-    };
-    if found {return}
-    
-    println!("{type_text}: not found");
-    return
-}
-
-// Handles echo logic.
-fn echo(args: &Vec<&str>){
-    let mut count = 0;
-    for item in args{
-        if count != 0{
-            if count > 1{
-                print!(" ");
-            }
-            print!("{item}");
-        }
-        count += 1; 
-    }
-    println!(""); 
 }
 
 // Returns positional integer when command is found, if item is not found 0 will be returned.
